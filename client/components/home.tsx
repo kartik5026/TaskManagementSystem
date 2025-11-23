@@ -215,35 +215,35 @@ export default function Home() {
   const pendingCount = tasks.length - completedCount;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-1">Task Manager</h1>
-              <p className="text-sm text-gray-500">Stay organized and productive</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">Task Manager</h1>
+              <p className="text-xs sm:text-sm text-gray-500">Stay organized and productive</p>
             </div>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-sm"
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-sm text-sm sm:text-base w-full sm:w-auto"
             >
               Logout
             </button>
           </div>
 
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 flex items-start sm:items-center gap-2 text-sm sm:text-base">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 sm:mt-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
-              <span>{error}</span>
+              <span className="break-words">{error}</span>
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <input
-              className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="border border-gray-300 p-2.5 sm:p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base"
               placeholder="What needs to be done?"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
@@ -257,22 +257,24 @@ export default function Home() {
             <button
               onClick={createTask}
               disabled={isCreating || !newTask.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-all font-medium shadow-sm hover:shadow-md flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg transition-all font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {isCreating ? (
                 <>
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Adding...</span>
+                  <span className="hidden sm:inline">Adding...</span>
+                  <span className="sm:hidden">Add...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  <span>Add Task</span>
+                  <span className="hidden sm:inline">Add Task</span>
+                  <span className="sm:hidden">Add</span>
                 </>
               )}
             </button>
@@ -281,28 +283,28 @@ export default function Home() {
 
         {/* Statistics */}
         {pagination && pagination.total > 0 && (
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-3 sm:p-4 border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Pending</p>
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-600">{pendingCount}</p>
                 </div>
-                <div className="bg-yellow-100 p-3 rounded-lg">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-yellow-100 p-2 sm:p-3 rounded-lg">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-3 sm:p-4 border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">{completedCount}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Completed</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600">{completedCount}</p>
                 </div>
-                <div className="bg-green-100 p-3 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-green-100 p-2 sm:p-3 rounded-lg">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -312,14 +314,14 @@ export default function Home() {
         )}
 
         {/* Task List */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
               Your Tasks
             </h2>
             {pagination && (
-              <div className="flex items-center gap-2">
-                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <span className="bg-blue-100 text-blue-700 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium inline-block">
                   {pagination.total} {pagination.total === 1 ? "task" : "tasks"}
                   {searchQuery && " found"}
                 </span>
@@ -333,7 +335,7 @@ export default function Home() {
           </div>
 
           {/* Filter and Search Controls */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="flex flex-col gap-3 mb-4 sm:mb-6">
             {/* Search Input - Global Search Across All Tasks */}
             <div className="flex-1 flex items-center gap-2">
               <div className="relative flex-1">
@@ -342,10 +344,10 @@ export default function Home() {
                   placeholder="Search all tasks by title..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full border border-gray-300 p-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 p-2 sm:p-2.5 pl-9 sm:pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                  className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -356,7 +358,7 @@ export default function Home() {
               {searchQuery && (
                 <button
                   onClick={() => handleSearchChange("")}
-                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                  className="px-2.5 sm:px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors flex-shrink-0"
                   title="Clear search"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,10 +369,10 @@ export default function Home() {
             </div>
 
             {/* Status Filter */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
               <button
                 onClick={() => handleStatusFilterChange("all")}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
                   statusFilter === "all"
                     ? "bg-blue-600 text-white shadow-md"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -380,7 +382,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => handleStatusFilterChange("pending")}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
                   statusFilter === "pending"
                     ? "bg-yellow-600 text-white shadow-md"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -390,7 +392,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => handleStatusFilterChange("completed")}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
                   statusFilter === "completed"
                     ? "bg-green-600 text-white shadow-md"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -441,37 +443,38 @@ export default function Home() {
 
               {/* Pagination Controls */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
-                      Showing {(currentPage - 1) * pageSize + 1} to{" "}
-                      {Math.min(currentPage * pageSize, pagination.total)} of{" "}
-                      {pagination.total} tasks
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                    <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                      Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+                      <span className="font-medium">{Math.min(currentPage * pageSize, pagination.total)}</span> of{" "}
+                      <span className="font-medium">{pagination.total}</span> tasks
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => setCurrentPage(currentPage - 1)}
                         disabled={!pagination.hasPrevPage}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                        className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
-                        Previous
+                        <span className="hidden sm:inline">Previous</span>
+                        <span className="sm:hidden">Prev</span>
                       </button>
 
-                      <span className="px-4 py-2 text-sm font-medium text-gray-700">
+                      <span className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
                         Page {currentPage} of {pagination.totalPages}
                       </span>
 
                       <button
                         onClick={() => setCurrentPage(currentPage + 1)}
                         disabled={!pagination.hasNextPage}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                        className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
                       >
-                        Next
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span className="hidden sm:inline">Next</span>
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
@@ -512,13 +515,13 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
 
   return (
     <div
-      className={`border rounded-xl p-4 transition-all ${
+      className={`border rounded-lg sm:rounded-xl p-3 sm:p-4 transition-all ${
         task.completed
           ? "bg-gray-50 border-gray-200 opacity-75"
           : "bg-white border-gray-300 hover:shadow-md hover:border-blue-300"
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         {/* Toggle Switch */}
         <div className="flex-shrink-0">
           <label className="relative inline-flex items-center cursor-pointer">
@@ -528,8 +531,8 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
               onChange={onToggle}
               className="sr-only peer"
             />
-            <div className="relative w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
-            <span className="ml-3 text-sm font-medium text-gray-700 min-w-[80px]">
+            <div className="relative w-12 h-6 sm:w-14 sm:h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 sm:after:h-6 sm:after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+            <span className="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-gray-700 min-w-[70px] sm:min-w-[80px]">
               {task.completed ? (
                 <span className="text-green-600 font-semibold">Complete</span>
               ) : (
@@ -542,7 +545,7 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
         {/* Task Content */}
         <div className="flex-1 min-w-0">
           {isEditing ? (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={editTitle}
@@ -551,29 +554,31 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
                   if (e.key === "Enter") handleSave();
                   if (e.key === "Escape") handleCancel();
                 }}
-                className="border border-gray-300 p-2 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 p-2 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 autoFocus
               />
-              <button
-                onClick={handleSave}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Save
-              </button>
-              <button
-                onClick={handleCancel}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                Cancel
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSave}
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1 flex-1 sm:flex-initial"
+                >
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           ) : (
             <div>
               <p
-                className={`text-lg mb-1 ${
+                className={`text-base sm:text-lg mb-1 break-words ${
                   task.completed
                     ? "line-through text-gray-500"
                     : "text-gray-800 font-medium"
@@ -595,22 +600,22 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
 
         {/* Actions */}
         {!isEditing && (
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 self-start sm:self-center">
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors shadow-sm hover:shadow"
+              className="bg-blue-500 hover:bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg transition-colors shadow-sm hover:shadow"
               title="Edit task"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
             <button
               onClick={onDelete}
-              className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors shadow-sm hover:shadow"
+              className="bg-red-500 hover:bg-red-600 text-white p-1.5 sm:p-2 rounded-lg transition-colors shadow-sm hover:shadow"
               title="Delete task"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
