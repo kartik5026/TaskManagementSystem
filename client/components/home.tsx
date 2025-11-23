@@ -164,16 +164,23 @@ export default function Home() {
     }
   }
 
+  // Calculate task statistics
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const pendingCount = tasks.length - completedCount;
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-800">Task Manager</h1>
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-1">Task Manager</h1>
+              <p className="text-sm text-gray-500">Stay organized and productive</p>
+            </div>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-sm"
             >
               Logout
             </button>
@@ -181,16 +188,19 @@ export default function Home() {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
           {/* Create Task */}
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <input
-              className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter a new task..."
+              className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="What needs to be done?"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               onKeyPress={(e) => {
@@ -203,26 +213,86 @@ export default function Home() {
             <button
               onClick={createTask}
               disabled={isCreating || !newTask.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-colors font-medium"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-all font-medium shadow-sm hover:shadow-md flex items-center gap-2"
             >
-              {isCreating ? "Adding..." : "Add Task"}
+              {isCreating ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Adding...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Add Task</span>
+                </>
+              )}
             </button>
           </div>
         </div>
 
+        {/* Statistics */}
+        {tasks.length > 0 && (
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Pending</p>
+                  <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
+                </div>
+                <div className="bg-yellow-100 p-3 rounded-lg">
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Completed</p>
+                  <p className="text-2xl font-bold text-green-600">{completedCount}</p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Task List */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Your Tasks ({tasks.length})
-          </h2>
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Your Tasks
+            </h2>
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+              {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+            </span>
+          </div>
 
           {loading ? (
-            <div className="text-center py-8">
+            <div className="text-center py-12">
+              <svg className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
               <p className="text-gray-500">Loading tasks...</p>
             </div>
           ) : tasks.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 text-lg">No tasks yet. Create your first task above!</p>
+            <div className="text-center py-12">
+              <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p className="text-gray-500 text-lg font-medium">No tasks yet</p>
+              <p className="text-gray-400 text-sm mt-2">Create your first task above to get started!</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -271,23 +341,35 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
 
   return (
     <div
-      className={`border rounded-lg p-4 transition-all ${
+      className={`border rounded-xl p-4 transition-all ${
         task.completed
-          ? "bg-gray-50 border-gray-200"
-          : "bg-white border-gray-300 hover:shadow-md"
+          ? "bg-gray-50 border-gray-200 opacity-75"
+          : "bg-white border-gray-300 hover:shadow-md hover:border-blue-300"
       }`}
     >
-      <div className="flex items-start gap-3">
-        {/* Checkbox */}
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={onToggle}
-          className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
-        />
+      <div className="flex items-center gap-4">
+        {/* Toggle Switch */}
+        <div className="flex-shrink-0">
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={onToggle}
+              className="sr-only peer"
+            />
+            <div className="relative w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+            <span className="ml-3 text-sm font-medium text-gray-700 min-w-[80px]">
+              {task.completed ? (
+                <span className="text-green-600 font-semibold">Complete</span>
+              ) : (
+                <span className="text-yellow-600 font-semibold">Pending</span>
+              )}
+            </span>
+          </label>
+        </div>
 
         {/* Task Content */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {isEditing ? (
             <div className="flex gap-2">
               <input
@@ -298,18 +380,21 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
                   if (e.key === "Enter") handleSave();
                   if (e.key === "Escape") handleCancel();
                 }}
-                className="border border-gray-300 p-2 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 p-2 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 autoFocus
               />
               <button
                 onClick={handleSave}
-                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 Save
               </button>
               <button
                 onClick={handleCancel}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -317,7 +402,7 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
           ) : (
             <div>
               <p
-                className={`text-lg ${
+                className={`text-lg mb-1 ${
                   task.completed
                     ? "line-through text-gray-500"
                     : "text-gray-800 font-medium"
@@ -326,18 +411,13 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
               >
                 {task.title}
               </p>
-              <div className="flex items-center gap-2 mt-1">
-                <span
-                  className={`text-xs px-2 py-1 rounded ${
-                    task.completed
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {task.completed ? "Completed" : "Pending"}
-                </span>
+              <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-400">
-                  {new Date(task.createdAt).toLocaleDateString()}
+                  Created {new Date(task.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric"
+                  })}
                 </span>
               </div>
             </div>
@@ -346,28 +426,24 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
 
         {/* Actions */}
         {!isEditing && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onToggle}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                task.completed
-                  ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                  : "bg-green-500 hover:bg-green-600 text-white"
-              }`}
-            >
-              {task.completed ? "Mark Pending" : "Mark Done"}
-            </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors shadow-sm hover:shadow"
+              title="Edit task"
             >
-              Edit
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
             </button>
             <button
               onClick={onDelete}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+              className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors shadow-sm hover:shadow"
+              title="Delete task"
             >
-              Delete
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
             </button>
           </div>
         )}
