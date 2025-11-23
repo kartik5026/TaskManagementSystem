@@ -34,7 +34,7 @@ export const createTask = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Get all tasks for the authenticated user
+// Get all tasks for the authenticated user with pagination
 export const getAllTasks = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
@@ -43,18 +43,39 @@ export const getAllTasks = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    const tasks = await prisma.task.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    // Get pagination parameters from query string
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    
+    // Validate pagination parameters
+    const pageNumber = Math.max(1, page);
+    const pageSize = Math.min(Math.max(1, limit), 100); // Max 100 items per page
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Get total count and paginated tasks
+    const [totalTasks, tasks] = await Promise.all([
+      prisma.task.count({ where: { userId: userId } }),
+      prisma.task.findMany({
+        where: { userId: userId },
+        orderBy: { createdAt: "desc" },
+        skip: skip,
+        take: pageSize,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalTasks / pageSize);
 
     return res.status(200).json({
       message: "Tasks retrieved successfully",
       tasks,
+      pagination: {
+        page: pageNumber,
+        limit: pageSize,
+        total: totalTasks,
+        totalPages: totalPages,
+        hasNextPage: pageNumber < totalPages,
+        hasPrevPage: pageNumber > 1,
+      },
     });
   } catch (error) {
     console.error("Get all tasks error:", error);

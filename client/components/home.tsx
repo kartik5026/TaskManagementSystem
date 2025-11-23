@@ -4,15 +4,20 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 
-// ------------------------
-// Types
-// ------------------------
 interface Task {
   id: number;
   title: string;
   completed: boolean;
-  userId: number;
   createdAt: string;
+}
+
+interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 export default function Home() {
@@ -22,20 +27,25 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const pageSize = 10;
 
-  // ---------------------------
-  // Fetch Tasks on Mount
-  // ---------------------------
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    fetchTasks(currentPage);
+  }, [currentPage]);
 
-  async function fetchTasks() {
+  async function fetchTasks(page: number) {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosInstance.get<{ tasks: Task[]; message: string }>("/tasks");
+      const res = await axiosInstance.get<{
+        tasks: Task[];
+        pagination: Pagination;
+      }>(`/tasks?page=${page}&limit=${pageSize}`);
+      
       setTasks(res.data.tasks);
+      setPagination(res.data.pagination);
     } catch (error: any) {
       console.error("Error fetching tasks:", error);
       setError("Failed to load tasks. Please try again.");
@@ -47,9 +57,6 @@ export default function Home() {
     }
   }
 
-  // ---------------------------
-  // Create Task
-  // ---------------------------
   async function createTask() {
     if (!newTask.trim()) {
       setError("Task title cannot be empty");
@@ -64,7 +71,14 @@ export default function Home() {
         { title: newTask.trim() }
       );
 
-      setTasks((prev) => [res.data.task, ...prev]);
+      if (currentPage === 1) {
+        setTasks((prev) => [res.data.task, ...prev]);
+        if (pagination) {
+          setPagination({ ...pagination, total: pagination.total + 1 });
+        }
+      } else {
+        setCurrentPage(1);
+      }
       setNewTask("");
     } catch (error: any) {
       console.error("Error creating task:", error);
@@ -77,9 +91,6 @@ export default function Home() {
     }
   }
 
-  // ---------------------------
-  // Toggle Task Status
-  // ---------------------------
   async function toggleTask(id: number, currentStatus: boolean) {
     try {
       setError(null);
@@ -100,9 +111,6 @@ export default function Home() {
     }
   }
 
-  // ---------------------------
-  // Update Task Title
-  // ---------------------------
   async function updateTaskTitle(id: number, newTitle: string) {
     if (!newTitle.trim()) {
       setError("Task title cannot be empty");
@@ -128,9 +136,6 @@ export default function Home() {
     }
   }
 
-  // ---------------------------
-  // Delete Task
-  // ---------------------------
   async function deleteTask(id: number) {
     if (!confirm("Are you sure you want to delete this task?")) {
       return;
@@ -140,7 +145,14 @@ export default function Home() {
       setError(null);
       await axiosInstance.delete(`/tasks/${id}`);
 
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+      const updatedTasks = tasks.filter((t) => t.id !== id);
+      setTasks(updatedTasks);
+
+      if (updatedTasks.length === 0 && currentPage > 1 && pagination) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        fetchTasks(currentPage);
+      }
     } catch (error: any) {
       console.error("Error deleting task:", error);
       setError(error.response?.data?.message || "Failed to delete task");
@@ -150,21 +162,16 @@ export default function Home() {
     }
   }
 
-  // ---------------------------
-  // Logout
-  // ---------------------------
   async function handleLogout() {
     try {
       await axiosInstance.post("/users/logout");
       router.push("/login");
     } catch (error) {
       console.error("Error logging out:", error);
-      // Even if logout fails, redirect to login
       router.push("/login");
     }
   }
 
-  // Calculate task statistics
   const completedCount = tasks.filter((t) => t.completed).length;
   const pendingCount = tasks.length - completedCount;
 
@@ -186,7 +193,6 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -196,7 +202,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Create Task */}
           <div className="flex gap-3">
             <input
               className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -236,7 +241,7 @@ export default function Home() {
         </div>
 
         {/* Statistics */}
-        {tasks.length > 0 && (
+        {pagination && pagination.total > 0 && (
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-md p-4 border border-gray-200">
               <div className="flex items-center justify-between">
@@ -273,9 +278,11 @@ export default function Home() {
             <h2 className="text-xl font-semibold text-gray-800">
               Your Tasks
             </h2>
-            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-              {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
-            </span>
+            {pagination && (
+              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                {pagination.total} {pagination.total === 1 ? "task" : "tasks"} total
+              </span>
+            )}
           </div>
 
           {loading ? (
@@ -295,17 +302,60 @@ export default function Home() {
               <p className="text-gray-400 text-sm mt-2">Create your first task above to get started!</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onToggle={() => toggleTask(task.id, task.completed)}
-                  onDelete={() => deleteTask(task.id)}
-                  onUpdateTitle={(newTitle) => updateTaskTitle(task.id, newTitle)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="space-y-3">
+                {tasks.map((task) => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onToggle={() => toggleTask(task.id, task.completed)}
+                    onDelete={() => deleteTask(task.id)}
+                    onUpdateTitle={(newTitle) => updateTaskTitle(task.id, newTitle)}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {pagination && pagination.totalPages > 1 && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600">
+                      Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                      {Math.min(currentPage * pageSize, pagination.total)} of{" "}
+                      {pagination.total} tasks
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={!pagination.hasPrevPage}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                      </button>
+
+                      <span className="px-4 py-2 text-sm font-medium text-gray-700">
+                        Page {currentPage} of {pagination.totalPages}
+                      </span>
+
+                      <button
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={!pagination.hasNextPage}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                      >
+                        Next
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -313,9 +363,6 @@ export default function Home() {
   );
 }
 
-// ---------------------------
-// Task Item Component
-// ---------------------------
 interface TaskItemProps {
   task: Task;
   onToggle: () => void;
@@ -411,15 +458,13 @@ function TaskItem({ task, onToggle, onDelete, onUpdateTitle }: TaskItemProps) {
               >
                 {task.title}
               </p>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">
-                  Created {new Date(task.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric"
-                  })}
-                </span>
-              </div>
+              <span className="text-xs text-gray-400">
+                Created {new Date(task.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric"
+                })}
+              </span>
             </div>
           )}
         </div>
