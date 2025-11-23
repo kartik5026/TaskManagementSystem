@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loginService, refreshTokenService, registerService, testService } from "../Services";
+import { loginService, logoutService, refreshTokenService, registerService, testService } from "../Services";
 
 class UserController{
     registerController(req:Request,res:Response){
@@ -13,6 +13,10 @@ class UserController{
 
     refreshTokenController(req:Request, res:Response){
         return refreshTokenService(req,res);
+    }
+
+    logoutController(req:Request, res:Response){
+        return logoutService(req,res);
     }
 
     testController(req:Request, res:Response){

@@ -64,8 +64,25 @@ export const login = async(req:Request, res:Response)=>{
     const refreshToken = generateRefreshToken(user.id);
     const accessToken = generateAccessToken(user.id);
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    res.cookie('refreshToken',refreshToken, {httpOnly:true, secure:false, maxAge:sevenDays, path:'/'});
-    res.cookie('accessToken',accessToken, {httpOnly:true, secure:false, maxAge:sevenDays, path:'/'});
+    const fiveMinutes = 5 * 60 * 1000;
+    
+    // Set refresh token cookie (7 days)
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production, false in dev
+      sameSite: 'lax', // CSRF protection
+      maxAge: sevenDays,
+      path: '/'
+    });
+    
+    // Set access token cookie (5 minutes - matches token expiry)
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: fiveMinutes,
+      path: '/'
+    });
 
     return res.status(200).json({msg:'Login success'});
 
@@ -91,7 +108,16 @@ export const refreshToken = async(req:Request, res:Response)=>{
 
     // Generate a new access token
     const newAccessToken = generateAccessToken(payload.userId);
-    res.cookie('accessToken',newAccessToken, {httpOnly:true, secure:true});
+    const fiveMinutes = 5 * 60 * 1000;
+    
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: fiveMinutes,
+      path: '/'
+    });
+    
     return res.status(200).json({msg:'Access token generated'});
 
   } catch (error) {
@@ -102,6 +128,19 @@ export const refreshToken = async(req:Request, res:Response)=>{
 
 }
 
+
+export const logout = async(req:Request, res:Response)=>{
+  try {
+    // Clear both tokens from cookies
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+    
+    return res.status(200).json({msg:'Logout successful'});
+  } catch (error) {
+    console.error("Logout error:", error);
+    return res.status(500).json({error});
+  }
+}
 
 export const test = async(req:Request, res:Response)=>{
   res.status(200).json({msg:'testing api for protected route'});

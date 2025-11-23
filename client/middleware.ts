@@ -27,9 +27,22 @@ export function middleware(req: NextRequest) {
 
       return NextResponse.next(); // allow access to protected pages
     } catch (err) {
-      // Invalid/expired token → delete cookie and redirect
+      // Invalid/expired access token - check if refresh token exists
+      const refreshToken = req.cookies.get("refreshToken")?.value;
+      
+      if (refreshToken) {
+        // Refresh token exists - let the client-side interceptor handle the refresh
+        // Don't redirect here, let the page load and axios will handle token refresh
+        if (publicPaths.includes(pathname)) {
+          return NextResponse.redirect(new URL("/", req.url));
+        }
+        return NextResponse.next();
+      }
+      
+      // No refresh token → delete access token cookie and redirect to login
       const response = NextResponse.redirect(new URL("/login", req.url));
       response.cookies.delete("accessToken");
+      response.cookies.delete("refreshToken");
       return response;
     }
   }

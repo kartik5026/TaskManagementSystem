@@ -27,7 +27,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
 
 export const generateRefreshToken = (id:number)=>{
    try {
-     return jwt.sign({userId:id}, process.env.REFRESH_TOKEN_SECRET!, {expiresIn:'7m'});
+     return jwt.sign({userId:id}, process.env.REFRESH_TOKEN_SECRET!, {expiresIn:'7d'});
    } catch (error) {
      throw error;
    }

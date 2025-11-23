@@ -17,11 +17,10 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Call refresh token API
-        await axios.post(
-          `${backendUrl}/users/refreshToken`,
-          {}, // body empty, refresh token in cookie
-          { withCredentials: true }
+        // Call refresh token API (use axiosInstance to maintain baseURL and credentials)
+        await axiosInstance.post(
+          '/users/refreshToken',
+          {} // body empty, refresh token in cookie
         );
 
         // Retry original request after refresh
