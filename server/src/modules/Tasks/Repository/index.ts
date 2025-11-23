@@ -34,7 +34,7 @@ export const createTask = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Get all tasks for the authenticated user with pagination
+// Get all tasks for the authenticated user with pagination, filtering, and search
 export const getAllTasks = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
@@ -47,16 +47,38 @@ export const getAllTasks = async (req: AuthRequest, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     
+    // Get filter and search parameters
+    const status = req.query.status as string | undefined; // 'completed', 'pending', or undefined
+    const search = req.query.search as string | undefined; // search term for title
+    
     // Validate pagination parameters
     const pageNumber = Math.max(1, page);
     const pageSize = Math.min(Math.max(1, limit), 100); // Max 100 items per page
     const skip = (pageNumber - 1) * pageSize;
 
+    // Build where clause
+    const whereClause: any = {
+      userId: userId,
+    };
+
+    // Add status filter
+    if (status === 'completed' || status === 'pending') {
+      whereClause.completed = status === 'completed';
+    }
+
+    // Add search filter (case-insensitive partial match)
+    if (search && search.trim() !== '') {
+      whereClause.title = {
+        contains: search.trim(),
+        mode: 'insensitive', // Case-insensitive search
+      };
+    }
+
     // Get total count and paginated tasks
     const [totalTasks, tasks] = await Promise.all([
-      prisma.task.count({ where: { userId: userId } }),
+      prisma.task.count({ where: whereClause }),
       prisma.task.findMany({
-        where: { userId: userId },
+        where: whereClause,
         orderBy: { createdAt: "desc" },
         skip: skip,
         take: pageSize,
@@ -75,6 +97,10 @@ export const getAllTasks = async (req: AuthRequest, res: Response) => {
         totalPages: totalPages,
         hasNextPage: pageNumber < totalPages,
         hasPrevPage: pageNumber > 1,
+      },
+      filters: {
+        status: status || 'all',
+        search: search || '',
       },
     });
   } catch (error) {

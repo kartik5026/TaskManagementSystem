@@ -29,20 +29,49 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all"); // 'all', 'completed', 'pending'
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const pageSize = 10;
 
+  // Debounce search to avoid too many API calls
   useEffect(() => {
-    fetchTasks(currentPage);
-  }, [currentPage]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500); // Wait 500ms after user stops typing
 
-  async function fetchTasks(page: number) {
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch tasks when page, filter, or debounced search changes
+  useEffect(() => {
+    fetchTasks(currentPage, statusFilter, debouncedSearch);
+  }, [currentPage, statusFilter, debouncedSearch]);
+
+  async function fetchTasks(page: number, status: string = "all", search: string = "") {
     try {
       setLoading(true);
       setError(null);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: pageSize.toString(),
+      });
+      
+      if (status !== "all") {
+        params.append("status", status);
+      }
+      
+      // Search is global - searches across ALL tasks, not just current page
+      if (search.trim()) {
+        params.append("search", search.trim());
+      }
+      
       const res = await axiosInstance.get<{
         tasks: Task[];
         pagination: Pagination;
-      }>(`/tasks?page=${page}&limit=${pageSize}`);
+      }>(`/tasks?${params.toString()}`);
       
       setTasks(res.data.tasks);
       setPagination(res.data.pagination);
@@ -56,6 +85,17 @@ export default function Home() {
       setLoading(false);
     }
   }
+
+  // Reset to page 1 when filter or search changes
+  const handleStatusFilterChange = (status: string) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1); // Reset to page 1 when searching
+  };
 
   async function createTask() {
     if (!newTask.trim()) {
@@ -278,10 +318,87 @@ export default function Home() {
               Your Tasks
             </h2>
             {pagination && (
-              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                {pagination.total} {pagination.total === 1 ? "task" : "tasks"} total
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                  {pagination.total} {pagination.total === 1 ? "task" : "tasks"}
+                  {searchQuery && " found"}
+                </span>
+                {searchQuery && (
+                  <span className="text-xs text-gray-500 italic">
+                    (searching all pages)
+                  </span>
+                )}
+              </div>
             )}
+          </div>
+
+          {/* Filter and Search Controls */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+            {/* Search Input - Global Search Across All Tasks */}
+            <div className="flex-1 flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search all tasks by title..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="w-full border border-gray-300 p-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <svg
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              {searchQuery && (
+                <button
+                  onClick={() => handleSearchChange("")}
+                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                  title="Clear search"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleStatusFilterChange("all")}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  statusFilter === "all"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => handleStatusFilterChange("pending")}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  statusFilter === "pending"
+                    ? "bg-yellow-600 text-white shadow-md"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Pending
+              </button>
+              <button
+                onClick={() => handleStatusFilterChange("completed")}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  statusFilter === "completed"
+                    ? "bg-green-600 text-white shadow-md"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Completed
+              </button>
+            </div>
           </div>
 
           {loading ? (
@@ -297,8 +414,16 @@ export default function Home() {
               <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <p className="text-gray-500 text-lg font-medium">No tasks yet</p>
-              <p className="text-gray-400 text-sm mt-2">Create your first task above to get started!</p>
+              <p className="text-gray-500 text-lg font-medium">
+                {searchQuery || statusFilter !== "all"
+                  ? "No tasks found"
+                  : "No tasks yet"}
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                {searchQuery || statusFilter !== "all"
+                  ? "Try adjusting your filters or search"
+                  : "Create your first task above to get started!"}
+              </p>
             </div>
           ) : (
             <>
