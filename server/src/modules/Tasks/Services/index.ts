@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from "../Repository";
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTask } from "../Repository";
 
 export const createTaskService = (req: Request, res: Response) => {
   return createTask(req, res);
@@ -15,6 +15,10 @@ export const getTaskByIdService = (req: Request, res: Response) => {
 
 export const updateTaskService = (req: Request, res: Response) => {
   return updateTask(req, res);
+};
+
+export const toggleTaskService = (req: Request, res: Response) => {
+  return toggleTask(req, res);
 };
 
 export const deleteTaskService = (req: Request, res: Response) => {

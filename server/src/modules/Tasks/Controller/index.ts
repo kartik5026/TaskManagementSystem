@@ -5,6 +5,7 @@ import {
   getAllTasksService,
   getTaskByIdService,
   updateTaskService,
+  toggleTaskService,
 } from "../Services";
 
 class TaskController {
@@ -22,6 +23,10 @@ class TaskController {
 
   updateTaskController(req: Request, res: Response) {
     return updateTaskService(req, res);
+  }
+
+  toggleTaskController(req: Request, res: Response) {
+    return toggleTaskService(req, res);
   }
 
   deleteTaskController(req: Request, res: Response) {

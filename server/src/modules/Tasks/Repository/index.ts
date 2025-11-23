@@ -118,12 +118,61 @@ export const getTaskById = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Update a task
+// Update a task (title only)
 export const updateTask = async (req: AuthRequest, res: Response) => {
   try {
     const taskId = parseInt(req.params.id);
     const userId = req.userId;
-    const { title, completed } = req.body;
+    const { title } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    if (isNaN(taskId)) {
+      return res.status(400).json({ message: "Invalid task ID" });
+    }
+
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
+    }
+
+    // Check if task exists and belongs to user
+    const existingTask = await prisma.task.findFirst({
+      where: {
+        id: taskId,
+        userId: userId,
+      },
+    });
+
+    if (!existingTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const updatedTask = await prisma.task.update({
+      where: {
+        id: taskId,
+      },
+      data: {
+        title: title.trim(),
+      },
+    });
+
+    return res.status(200).json({
+      message: "Task updated successfully",
+      task: updatedTask,
+    });
+  } catch (error) {
+    console.error("Update task error:", error);
+    return res.status(500).json({ message: "Error updating task" });
+  }
+};
+
+// Toggle task completion status
+export const toggleTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const taskId = parseInt(req.params.id);
+    const userId = req.userId;
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -145,37 +194,23 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Build update data
-    const updateData: { title?: string; completed?: boolean } = {};
-    if (title !== undefined) {
-      if (title.trim() === "") {
-        return res.status(400).json({ message: "Title cannot be empty" });
-      }
-      updateData.title = title.trim();
-    }
-    if (completed !== undefined) {
-      updateData.completed = Boolean(completed);
-    }
-
-    // If no fields to update
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ message: "No fields to update" });
-    }
-
+    // Toggle the completed status
     const updatedTask = await prisma.task.update({
       where: {
         id: taskId,
       },
-      data: updateData,
+      data: {
+        completed: !existingTask.completed,
+      },
     });
 
     return res.status(200).json({
-      message: "Task updated successfully",
+      message: "Task toggled successfully",
       task: updatedTask,
     });
   } catch (error) {
-    console.error("Update task error:", error);
-    return res.status(500).json({ message: "Error updating task" });
+    console.error("Toggle task error:", error);
+    return res.status(500).json({ message: "Error toggling task" });
   }
 };
 

@@ -91,20 +91,19 @@ export default function Home() {
     }
   }
 
-  async function toggleTask(id: number, currentStatus: boolean) {
+  async function toggleTask(id: number) {
     try {
       setError(null);
-      const res = await axiosInstance.put<{ task: Task; message: string }>(
-        `/tasks/${id}`,
-        { completed: !currentStatus }
+      const res = await axiosInstance.post<{ task: Task; message: string }>(
+        `/tasks/${id}/toggle`
       );
 
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? res.data.task : t))
       );
     } catch (error: any) {
-      console.error("Error updating task:", error);
-      setError(error.response?.data?.message || "Failed to update task");
+      console.error("Error toggling task:", error);
+      setError(error.response?.data?.message || "Failed to toggle task");
       if (error.response?.status === 401) {
         router.push("/login");
       }
@@ -308,7 +307,7 @@ export default function Home() {
                   <TaskItem
                     key={task.id}
                     task={task}
-                    onToggle={() => toggleTask(task.id, task.completed)}
+                    onToggle={() => toggleTask(task.id)}
                     onDelete={() => deleteTask(task.id)}
                     onUpdateTitle={(newTitle) => updateTaskTitle(task.id, newTitle)}
                   />
