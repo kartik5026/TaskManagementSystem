@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axios";
+import { toast } from "react-toastify";
 
 interface Task {
   id: number;
@@ -77,7 +78,9 @@ export default function Home() {
       setPagination(res.data.pagination);
     } catch (error: any) {
       console.error("Error fetching tasks:", error);
-      setError("Failed to load tasks. Please try again.");
+      const errorMessage = "Failed to load tasks. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       if (error.response?.status === 401) {
         router.push("/login");
       }
@@ -99,7 +102,7 @@ export default function Home() {
 
   async function createTask() {
     if (!newTask.trim()) {
-      setError("Task title cannot be empty");
+      toast.error("Task title cannot be empty");
       return;
     }
 
@@ -120,9 +123,12 @@ export default function Home() {
         setCurrentPage(1);
       }
       setNewTask("");
+      toast.success("Task created successfully!");
     } catch (error: any) {
       console.error("Error creating task:", error);
-      setError(error.response?.data?.message || "Failed to create task");
+      const errorMessage = error.response?.data?.message || "Failed to create task";
+      setError(errorMessage);
+      toast.error(errorMessage);
       if (error.response?.status === 401) {
         router.push("/login");
       }
@@ -141,9 +147,15 @@ export default function Home() {
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? res.data.task : t))
       );
+      
+      const task = tasks.find((t) => t.id === id);
+      const newStatus = res.data.task.completed ? "completed" : "pending";
+      toast.success(`Task marked as ${newStatus}!`);
     } catch (error: any) {
       console.error("Error toggling task:", error);
-      setError(error.response?.data?.message || "Failed to toggle task");
+      const errorMessage = error.response?.data?.message || "Failed to toggle task";
+      setError(errorMessage);
+      toast.error(errorMessage);
       if (error.response?.status === 401) {
         router.push("/login");
       }
@@ -152,7 +164,7 @@ export default function Home() {
 
   async function updateTaskTitle(id: number, newTitle: string) {
     if (!newTitle.trim()) {
-      setError("Task title cannot be empty");
+      toast.error("Task title cannot be empty");
       return;
     }
 
@@ -166,9 +178,12 @@ export default function Home() {
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? res.data.task : t))
       );
+      toast.success("Task updated successfully!");
     } catch (error: any) {
       console.error("Error updating task:", error);
-      setError(error.response?.data?.message || "Failed to update task");
+      const errorMessage = error.response?.data?.message || "Failed to update task";
+      setError(errorMessage);
+      toast.error(errorMessage);
       if (error.response?.status === 401) {
         router.push("/login");
       }
@@ -192,9 +207,12 @@ export default function Home() {
       } else {
         fetchTasks(currentPage);
       }
+      toast.success("Task deleted successfully!");
     } catch (error: any) {
       console.error("Error deleting task:", error);
-      setError(error.response?.data?.message || "Failed to delete task");
+      const errorMessage = error.response?.data?.message || "Failed to delete task";
+      setError(errorMessage);
+      toast.error(errorMessage);
       if (error.response?.status === 401) {
         router.push("/login");
       }
@@ -204,9 +222,11 @@ export default function Home() {
   async function handleLogout() {
     try {
       await axiosInstance.post("/users/logout");
+      toast.success("Logged out successfully!");
       router.push("/login");
     } catch (error) {
       console.error("Error logging out:", error);
+      toast.info("Logged out");
       router.push("/login");
     }
   }

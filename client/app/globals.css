@@ -24,3 +24,37 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Toast Notification Styles */
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+.Toastify__toast {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.Toastify__toast--success {
+  background-color: #10b981;
+  color: white;
+}
+
+.Toastify__toast--error {
+  background-color: #ef4444;
+  color: white;
+}
+
+.Toastify__toast--info {
+  background-color: #3b82f6;
+  color: white;
+}
+
+@media (max-width: 640px) {
+  .Toastify__toast-container {
+    width: 90vw;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+}
