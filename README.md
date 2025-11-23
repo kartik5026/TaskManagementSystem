@@ -347,26 +347,3 @@ npm run lint     # Run ESLint
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 👤 Author
-
-Your Name
-
-## 🙏 Acknowledgments
-
-- Next.js team for the amazing framework
-- Express.js for the robust backend framework
-- Prisma for the excellent ORM
-- Tailwind CSS for the utility-first CSS framework
-
-## 📞 Support
-
-For support, email your-email@example.com or open an issue in the repository.
-
----
-
-**Happy Coding! 🚀**
-
