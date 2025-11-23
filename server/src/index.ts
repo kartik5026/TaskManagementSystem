@@ -2,6 +2,7 @@ import express from "express";
 import env from 'dotenv';
 import cors from 'cors';
 import { userRouter } from "./modules/Users/Router";
+import { taskRouter } from "./modules/Tasks/Router";
 import { urlencoded } from "body-parser";
 import cookieParser from 'cookie-parser'
 env.config();
@@ -16,6 +17,7 @@ app.use(cors({
 }))
 
 app.use('/api/users', userRouter);
+app.use('/api/tasks', taskRouter);
 
 app.get('/api',(req,res)=>{
     res.status(200).json({msg:'api working'});
