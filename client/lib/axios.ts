@@ -12,21 +12,28 @@ axiosInstance.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
+    // Skip interceptor for refreshToken endpoint to avoid infinite loops
+    if (originalRequest.url?.includes('/users/refreshToken')) {
+      return Promise.reject(error);
+    }
+
     // Check if error is 401 and not already retried
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        // Call refresh token API (use axiosInstance to maintain baseURL and credentials)
-        await axiosInstance.post(
-          '/users/refreshToken',
-          {} // body empty, refresh token in cookie
+        // Call refresh token API using plain axios to avoid interceptor loop
+        // The refresh token is in the cookie, so it will be sent automatically
+        await axios.post(
+          `${backendUrl}/users/refreshToken`,
+          {},
+          { withCredentials: true }
         );
 
         // Retry original request after refresh
         return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed → redirect to login
+      } catch (refreshError: any) {
+        // Refresh failed (403 or 401) → redirect to login
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
